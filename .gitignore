@@ -1,3 +1,4 @@
 wzo.cpp
 *.e
 .*.swp
+code.cpp
