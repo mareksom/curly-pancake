@@ -132,17 +132,19 @@ void Serializer::Read(std::istream& stream) {
     while (stream and size > 0) {
       const uint64_t block = std::min(kBlockSize, size);
       size -= block;
-      if (stream.read(buffer.data(), kBlockSize)) {
-        str += buffer.data();
+      if (stream.read(buffer.data(), block)) {
+        str.insert(str.end(), buffer.begin(), buffer.begin() + block);
       }
+    }
+    if (stream) {
+      out_.emplace_back(std::move(str));
     }
   }
 }
 
 void Serializer::CheckNotEmpty() const {
   if (out_.empty()) {
-    std::cerr << "The serializer doesn't have enough data." << std::endl;
-    abort();
+    Error("The serializer doesn't have enough data.");
   }
 }
 
@@ -195,7 +197,7 @@ void DeserializerHelper(Serializer& serializer) {}
 template <typename Arg1, typename ...Args>
 void DeserializerHelper(Serializer& serializer, Arg1& arg1, Args& ...args) {
   serializer >> arg1;
-  DeserizalizerHelper(serializer, args...);
+  DeserializerHelper(serializer, args...);
 }
 
 }  // namespace internal
@@ -203,7 +205,7 @@ void DeserializerHelper(Serializer& serializer, Arg1& arg1, Args& ...args) {
 template <typename ...Args>
 std::string Serialize(Args&& ...args) {
   Serializer serializer;
-  SerializerHelper(serializer, std::forward<Args>(args)...);
+  internal::SerializerHelper(serializer, std::forward<Args>(args)...);
   std::stringstream stream;
   serializer.Write(stream);
   return stream.str();
@@ -214,7 +216,7 @@ void Deserialize(std::string in, Args& ...args) {
   Serializer serializer;
   std::stringstream stream(std::move(in));
   serializer.Read(stream);
-  DeserializerHelper(serializer, args...);
+  internal::DeserializerHelper(serializer, args...);
 }
 
 }  // namespace serializer

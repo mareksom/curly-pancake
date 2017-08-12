@@ -22,6 +22,7 @@ SUFFIX_SOURCES =       \
 		child_process.h    \
 		main_process.h     \
 		command_line.h     \
+		responder.h        \
 		                   \
 		serializer.cpp     \
 		child_process.cpp  \
@@ -34,6 +35,7 @@ SUFFIX_SOURCES =       \
 		status_bar.cpp     \
 		systm.cpp          \
 		utils.cpp          \
+		responder.cpp      \
 		main.cpp           \
 
 FULL_SUFFIX_SOURCES = $(addprefix code/, $(SUFFIX_SOURCES))

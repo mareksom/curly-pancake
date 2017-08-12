@@ -25,4 +25,5 @@ void Error(Args&& ...args) {
       std::cerr, colors::Red, std::forward<Args>(args)..., colors::Reset);
   std::cerr << std::endl;
   children::KillAllChildrenAndExit();
+  responder::Kill();
 }
