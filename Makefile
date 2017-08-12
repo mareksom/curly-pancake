@@ -8,6 +8,7 @@ FULL_CODE = code.cpp
 
 SUFFIX_SOURCES =       \
 		includes.h         \
+		serializer.h       \
 		utils.h            \
 		systm.h            \
 		input_output.h     \
@@ -20,6 +21,7 @@ SUFFIX_SOURCES =       \
 		main_process.h     \
 		command_line.h     \
 		                   \
+		serializer.cpp     \
 		child_process.cpp  \
 		children.cpp       \
 		command_line.cpp   \
