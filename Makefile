@@ -51,6 +51,9 @@ $(FULL_CODE): .prefix.cpp $(WZO) .suffix.cpp
 	echo "#line 1 \"$(WZO)\"" >> $@
 	cat $(WZO) .suffix.cpp >> $@
 
+.prefix.cpp: code/prefix.cpp
+	cp $< $@
+
 .suffix.cpp: $(FULL_SUFFIX_SOURCES)
 	rm -f $@
 	for file in $^; do \
