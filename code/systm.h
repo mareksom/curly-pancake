@@ -21,6 +21,12 @@ class Pipe {
 
   static Pipe Create();
 
+  void SendString(const char* str, std::size_t size);
+  bool ReceiveString(char* str, std::size_t size);
+
+  void SendString(const std::string& str);
+  bool ReceiveString(std::string& str, std::size_t size);
+
   template <typename T>
   void SendValue(const T& t);
 

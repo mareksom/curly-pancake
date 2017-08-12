@@ -36,37 +36,55 @@ Pipe Pipe::Create() {
   return std::move(p);
 }
 
-template <typename T>
-void Pipe::SendValue(const T& t) {
-  const char* data = reinterpret_cast<const char*>(&t);
-  int size = sizeof(T);
+void Pipe::SendString(const char* str, std::size_t size) {
   while (size > 0) {
-    const int result = write(WriteFd(), data, size);
+    const int result = write(WriteFd(), str, size);
     if (result < 0) {
       Perror("write failed");
     } else if (result == 0) {
       Error("write returned 0.");
     }
     size -= result;
-    data += result;
+    str += result;
   }
 }
 
-template <typename T>
-bool Pipe::ReceiveValue(T& t) {
-  char* data = reinterpret_cast<char*>(&t);
-  int size = sizeof(T);
+bool Pipe::ReceiveString(char* str, std::size_t size) {
   while (size > 0) {
-    const int result = read(ReadFd(), data, size);
+    const int result = read(ReadFd(), str, size);
     if (result < 0) {
       Perror("read failed");
     } else if (result == 0) {
       return false;
     }
-    data += result;
     size -= result;
+    str += result;
   }
   return true;
+}
+
+void Pipe::SendString(const std::string& str) {
+  SendString(str.data(), str.size());
+}
+
+bool Pipe::ReceiveString(std::string& str, std::size_t size) {
+  str.clear();
+  std::vector<char> data(size);
+  if (!ReceiveString(data.data(), size)) {
+    return false;
+  }
+  str.insert(str.end(), data.begin(), data.end());
+  return true;
+}
+
+template <typename T>
+void Pipe::SendValue(const T& t) {
+  SendString(reinterpret_cast<const char*>(&t), sizeof(T));
+}
+
+template <typename T>
+bool Pipe::ReceiveValue(T& t) {
+  return ReceiveString(reinterpret_cast<char*>(&t), sizeof(T));
 }
 
 bool Pipe::ReadPortion(std::ostream& stream) {
