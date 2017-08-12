@@ -5,7 +5,8 @@ int main(int argc, char** argv) {
     state::Initialize(args.threads, args.max_threads, args.test,
                       args.input_file);
   } catch (const std::string& error_message) {
-    std::cerr << colors::Red << error_message << colors::Reset << std::endl;
+    std::cerr << term_codes::Red << error_message << term_codes::Reset
+              << std::endl;
     command_line::PrintUsage(argc, argv);
   }
   state::PrintStateInfo();

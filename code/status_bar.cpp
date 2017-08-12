@@ -7,7 +7,7 @@ std::vector<std::string> symbols;
 
 void Goto(int row, int col) {
   if (row <= 0) row += height;
-  std::cerr << "\033[" << row << ";" << col << "H";
+  std::cerr << term_codes::Goto(row, col);
 }
 
 void PrintBar() {

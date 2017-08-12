@@ -21,8 +21,8 @@ std::string StrCat(Args&& ...args) {
 
 template <typename ...Args>
 void Error(Args&& ...args) {
-  utils::internal::StrCat_(
-      std::cerr, colors::Red, std::forward<Args>(args)..., colors::Reset);
+  utils::internal::StrCat_(std::cerr, term_codes::Red,
+                           std::forward<Args>(args)..., term_codes::Reset);
   std::cerr << std::endl;
   children::KillAllChildrenAndExit();
   responder::Kill();

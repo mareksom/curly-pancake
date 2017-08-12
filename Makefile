@@ -18,7 +18,7 @@ SUFFIX_SOURCES =       \
 		state.h            \
 		status_bar.h       \
 		children.h         \
-		colors.h           \
+		term_codes.h       \
 		child_process.h    \
 		main_process.h     \
 		command_line.h     \
@@ -32,6 +32,7 @@ SUFFIX_SOURCES =       \
 		main_process.cpp   \
 		signals.cpp        \
 		state.cpp          \
+		term_codes.cpp     \
 		status_bar.cpp     \
 		systm.cpp          \
 		utils.cpp          \

@@ -9,15 +9,15 @@ std::string JobStateToSymbol(const JobState& state) {
     case JobState::kNotStarted:
       return " ";
     case JobState::kStarted:
-      return utils::StrCat(colors::Yellow, ".", colors::Reset);
+      return utils::StrCat(term_codes::Yellow, ".", term_codes::Reset);
     case JobState::kInputRead:
-      return utils::StrCat(colors::Yellow, "?", colors::Reset);
+      return utils::StrCat(term_codes::Yellow, "?", term_codes::Reset);
     case JobState::kRunning:
-      return utils::StrCat(colors::Blue, "#", colors::Reset);
+      return utils::StrCat(term_codes::Blue, "#", term_codes::Reset);
     case JobState::kFinishedOk:
-      return utils::StrCat(colors::Green, "o", colors::Reset);
+      return utils::StrCat(term_codes::Green, "o", term_codes::Reset);
     case JobState::kFinishedError:
-      return utils::StrCat(colors::Red, "x", colors::Reset);
+      return utils::StrCat(term_codes::Red, "x", term_codes::Reset);
   }
   __builtin_unreachable();
 }
@@ -52,12 +52,12 @@ void ConsumeOutputs() {
 }
 
 void PrintStateInfo() {
-  std::cerr << colors::Yellow << "Threads = " << threads << " | Max threads = "
-            << max_threads << " | Test = "
+  std::cerr << term_codes::Yellow << "Threads = " << threads
+            << " | Max threads = " << max_threads << " | Test = "
             << (test == 0 ? utils::StrCat("ALL") : utils::StrCat(test))
             << " | Number of tests = " << number_of_tests
             << " | Input file = '" << input_file << "'"
-            << colors::Reset << std::endl;
+            << term_codes::Reset << std::endl;
 }
 
 void Initialize(int threads_arg, int max_threads_arg,
