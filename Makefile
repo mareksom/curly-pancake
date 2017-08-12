@@ -1,6 +1,7 @@
 CXX = g++
-#FLAGS = -std=c++11 -g -DLOCAL
-FLAGS = -std=c++11 -O2
+#CXX = clang++-4.0
+FLAGS = -std=c++11 -g -DLOCAL
+#FLAGS = -std=c++11 -O2
 
 WZO = wzo.cpp
 BIN = wzo.e

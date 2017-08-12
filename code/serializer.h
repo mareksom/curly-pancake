@@ -27,6 +27,12 @@ class Serializer {
   template <typename A, typename B>
   Serializer& operator>>(std::pair<A, B>& p);
 
+  template <typename ...Args>
+  Serializer& operator<<(const std::tuple<Args...>& t);
+
+  template <typename ...Args>
+  Serializer& operator>>(std::tuple<Args...>& t);
+
   template <typename T>
   Serializer& operator<<(const solution::rge<T>& range);
 
@@ -38,6 +44,12 @@ class Serializer {
 
  private:
   void CheckNotEmpty() const;
+
+  template <typename ...Args>
+  Serializer& PutMany(Args&& ...args);
+
+  template <typename ...Args>
+  Serializer& GetMany(Args&& ...args);
 
   std::deque<std::string> out_;
 };

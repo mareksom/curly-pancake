@@ -50,14 +50,14 @@ Serializer& Serializer::operator>>(char* str) {
 template <typename T>
 typename std::enable_if<sizeof solution::dud<T>(0) == 1, Serializer&>::type
 Serializer::operator<<(const T& t) {
-  return *this << range(std::begin(t), std::end(t));
+  return *this << solution::range(std::begin(t), std::end(t));
 }
 
 template <typename T>
 typename std::enable_if<sizeof solution::dud<T>(0) == 1, Serializer&>::type
 Serializer::operator>>(T& t) {
   auto inserter = std::inserter(t, std::end(t));
-  return *this >> range(inserter, inserter);
+  return *this >> solution::range(inserter, inserter);
 }
 
 template <typename A, typename B>
@@ -68,6 +68,62 @@ Serializer& Serializer::operator<<(const std::pair<A, B>& p) {
 template <typename A, typename B>
 Serializer& Serializer::operator>>(std::pair<A, B>& p) {
   return *this >> p.first >> p.second;
+}
+
+namespace internal {
+
+template <int MaxElement, int NextElement, int ...Sequence>
+struct SequenceGenerator :
+    SequenceGenerator<MaxElement, NextElement + 1, Sequence..., NextElement> {};
+
+template <int MaxElement, int ...Sequence>
+struct SequenceGenerator<MaxElement, MaxElement, Sequence...> {
+  template <typename Callback, typename Tuple>
+  static auto Call(Callback callback, Tuple&& tuple)
+      -> decltype(callback(std::get<Sequence>(std::forward<Tuple>(tuple))...)) {
+    return callback(std::get<Sequence>(std::forward<Tuple>(tuple))...);
+  }
+};
+
+template <typename Tuple>
+struct TupleUnpacker {
+  using without_reference = typename std::remove_reference<Tuple>::type;
+  static constexpr int size = std::tuple_size<without_reference>::value;
+  using sequence_generator = SequenceGenerator<size, 0>;
+
+  template <typename Callback>
+  static auto Call(Callback&& callback, Tuple&& tuple)
+      -> decltype(sequence_generator::Call(std::forward<Callback>(callback),
+                                           std::forward<Tuple>(tuple))) {
+    return sequence_generator::Call(std::forward<Callback>(callback),
+                                    std::forward<Tuple>(tuple));
+  }
+};
+
+template <typename Callback, typename Tuple>
+auto PassUnpackedTuple(Callback&& callback, Tuple&& tuple)
+    -> decltype(TupleUnpacker<Tuple>::Call(std::forward<Callback>(callback),
+                                           std::forward<Tuple>(tuple))) {
+  return TupleUnpacker<Tuple>::Call(std::forward<Callback>(callback),
+                                    std::forward<Tuple>(tuple));
+}
+
+}  // namespace internal
+
+template <typename ...Args>
+Serializer& Serializer::operator<<(const std::tuple<Args...>& t) {
+  return internal::PassUnpackedTuple(
+      [this](const Args& ...args) -> Serializer& {
+        return PutMany(args...);
+      }, t);
+}
+
+template <typename ...Args>
+Serializer& Serializer::operator>>(std::tuple<Args...>& t) {
+  return internal::PassUnpackedTuple(
+      [this](Args& ...args) -> Serializer& {
+        return GetMany(args...);
+      }, t);
 }
 
 template <typename T>
@@ -128,6 +184,40 @@ void Serializer::CheckNotEmpty() const {
     std::cerr << "The serializer doesn't have enough data." << std::endl;
     abort();
   }
+}
+
+namespace internal {
+
+Serializer& PutManyHelper(Serializer& serializer) {
+  return serializer;
+}
+
+template <typename Arg1, typename ...Args>
+Serializer& PutManyHelper(Serializer& serializer, Arg1&& arg1, Args&& ...args) {
+  return PutManyHelper(serializer << std::forward<Arg1>(arg1),
+                       std::forward<Args>(args)...);
+}
+
+Serializer& GetManyHelper(Serializer& serializer) {
+  return serializer;
+}
+
+template <typename Arg1, typename ...Args>
+Serializer& GetManyHelper(Serializer& serializer, Arg1&& arg1, Args&& ...args) {
+  return GetManyHelper(serializer >> std::forward<Arg1>(arg1),
+                       std::forward<Args>(args)...);
+}
+
+}  // namespace internal
+
+template <typename ...Args>
+Serializer& Serializer::PutMany(Args&& ...args) {
+  return internal::PutManyHelper(*this, std::forward<Args>(args)...);
+}
+
+template <typename ...Args>
+Serializer& Serializer::GetMany(Args&& ...args) {
+  return internal::GetManyHelper(*this, std::forward<Args>(args)...);
 }
 
 namespace internal {
