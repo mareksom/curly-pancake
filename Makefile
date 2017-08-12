@@ -9,6 +9,7 @@ FULL_CODE = code.cpp
 
 SUFFIX_SOURCES =       \
 		includes.h         \
+		tuple_unpacker.h   \
 		serializer.h       \
 		utils.h            \
 		systm.h            \
