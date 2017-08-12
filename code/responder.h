@@ -6,7 +6,11 @@ namespace responder {
 
 #define DEFINE_CALLBACK(Name, ...)  \
     template <typename ...Args>     \
-    void Name(Args&& ...args);
+    void Name(Args&& ...args)
+
+DEFINE_CALLBACK(UpdateProgress, int test_case, double progress);
+DEFINE_CALLBACK(UpdateState, int test_case, state::JobState job_state);
+DEFINE_CALLBACK(AddMessage, std::string message);
 
 #undef DEFINE_CALLBACK
 

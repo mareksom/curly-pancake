@@ -52,7 +52,7 @@ void CreateCallback(std::string function_name,
     auto Name##_Caller = GenerateCallerFunction(#Name, Name##_Callback);  \
     }  /* namespace internal */                                           \
     template <typename ...Args2>                                          \
-    void UpdateProgress(Args2&& ...args) {                                \
+    void Name(Args2&& ...args) {                                          \
       internal::Name##_Caller(std::forward<Args2>(args)...);              \
     }                                                                     \
     namespace internal {                                                  \
@@ -62,6 +62,18 @@ void CreateCallback(std::string function_name,
       }                                                                   \
     } Name##_Object;                                                      \
     void Name##_Callback(Args)
+
+DEFINE_CALLBACK(UpdateProgress, int test_case, double progress) {
+  output_controller::UpdateProgress(test_case, progress);
+}
+
+DEFINE_CALLBACK(UpdateState, int test_case, state::JobState job_state) {
+  output_controller::UpdateState(test_case, job_state);
+}
+
+DEFINE_CALLBACK(AddMessage, std::string message) {
+  output_controller::AddMessage(message);
+}
 
 #undef DEFINE_CALLBACK
 

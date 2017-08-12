@@ -3,23 +3,35 @@ namespace serializer {
 class Serializer {
  public:
   template <typename T>
-  typename std::enable_if<sizeof solution::dud<T>(0) != 1, Serializer&>::type
+  typename std::enable_if<sizeof solution::dud<T>(0) != 1 and
+                          !std::is_enum<T>::value, Serializer&>::type
   operator<<(const T& t);
 
   template <typename T>
-  typename std::enable_if<sizeof solution::dud<T>(0) != 1, Serializer&>::type
+  typename std::enable_if<sizeof solution::dud<T>(0) != 1 and
+                          !std::is_enum<T>::value, Serializer&>::type
   operator>>(T& t);
 
   Serializer& operator>>(std::string& str);
   Serializer& operator>>(char* str);
 
   template <typename T>
-  typename std::enable_if<sizeof solution::dud<T>(0) == 1, Serializer&>::type
+  typename std::enable_if<sizeof solution::dud<T>(0) == 1 and
+                          !std::is_enum<T>::value, Serializer&>::type
   operator<<(const T& t);
 
   template <typename T>
-  typename std::enable_if<sizeof solution::dud<T>(0) == 1, Serializer&>::type
+  typename std::enable_if<sizeof solution::dud<T>(0) == 1 and
+                          !std::is_enum<T>::value, Serializer&>::type
   operator>>(T& t);
+
+  template <typename T>
+  typename std::enable_if<std::is_enum<T>::value, Serializer&>::type operator<<(
+      const T& t);
+
+  template <typename T>
+  typename std::enable_if<std::is_enum<T>::value, Serializer&>::type operator>>(
+      T& t);
 
   template <typename A, typename B>
   Serializer& operator<<(const std::pair<A, B>& p);

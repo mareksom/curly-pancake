@@ -13,6 +13,9 @@ std::vector<children::ChildData*> RunSomeChildrenAndGatherRunningChildren() {
       case state::JobState::kInputRead:
         waiting_children.push_back(&data);
         break;
+
+      default:
+        break;
     }
   }
   assert(!running_children.empty() or !waiting_children.empty());
@@ -43,7 +46,7 @@ void WaitForChild(pid_t pid) {
     state::SetState(data.test_case, state::JobState::kFinishedOk);
   } else {
     state::SetState(data.test_case, state::JobState::kFinishedError);
-    state::AppendError(error_message);
+    responder::AddMessage(error_message);
   }
   state::ConsumeOutputs();
 }

@@ -15,7 +15,8 @@ struct RemoveConst<std::pair<A, B>> {
 }  // namespace internal
 
 template <typename T>
-typename std::enable_if<sizeof solution::dud<T>(0) != 1, Serializer&>::type
+typename std::enable_if<sizeof solution::dud<T>(0) != 1 and
+                        !std::is_enum<T>::value, Serializer&>::type
 Serializer::operator<<(const T& t) {
   std::stringstream stream;
   stream << t;
@@ -24,7 +25,8 @@ Serializer::operator<<(const T& t) {
 }
 
 template <typename T>
-typename std::enable_if<sizeof solution::dud<T>(0) != 1, Serializer&>::type
+typename std::enable_if<sizeof solution::dud<T>(0) != 1 and
+                        !std::is_enum<T>::value, Serializer&>::type
 Serializer::operator>>(T& t) {
   CheckNotEmpty();
   std::stringstream stream(out_.front());
@@ -48,16 +50,33 @@ Serializer& Serializer::operator>>(char* str) {
 }
 
 template <typename T>
-typename std::enable_if<sizeof solution::dud<T>(0) == 1, Serializer&>::type
+typename std::enable_if<sizeof solution::dud<T>(0) == 1 and
+                        !std::is_enum<T>::value, Serializer&>::type
 Serializer::operator<<(const T& t) {
   return *this << solution::range(std::begin(t), std::end(t));
 }
 
 template <typename T>
-typename std::enable_if<sizeof solution::dud<T>(0) == 1, Serializer&>::type
+typename std::enable_if<sizeof solution::dud<T>(0) == 1 and
+                        !std::is_enum<T>::value, Serializer&>::type
 Serializer::operator>>(T& t) {
   auto inserter = std::inserter(t, std::end(t));
   return *this >> solution::range(inserter, inserter);
+}
+
+template <typename T>
+typename std::enable_if<std::is_enum<T>::value, Serializer&>::type
+Serializer::operator<<(const T& t) {
+  return *this << static_cast<typename std::underlying_type<T>::type>(t);
+}
+
+template <typename T>
+typename std::enable_if<std::is_enum<T>::value, Serializer&>::type
+Serializer::operator>>(T& t) {
+  typename std::underlying_type<T>::type value;
+  *this >> value;
+  t = static_cast<T>(value);
+  return *this;
 }
 
 template <typename A, typename B>

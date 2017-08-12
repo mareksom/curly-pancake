@@ -1,7 +1,7 @@
 namespace status_bar {
 namespace internal {
 
-bool is_enabled;
+bool is_enabled = false;
 int width, height;
 std::vector<std::string> symbols;
 
@@ -20,9 +20,9 @@ void PrintBar() {
 
 }  // namespace internal
 
-void Initialize(bool is_enabled_arg, int size) {
+void Initialize(int size) {
   winsize w;
-  if (!is_enabled_arg or isatty(1 /* stdin */) or !isatty(2 /* stderr */) or
+  if (isatty(1 /* stdin */) or !isatty(2 /* stderr */) or
       ioctl(STDERR_FILENO, TIOCGWINSZ, &w) == -1) {
     internal::is_enabled = false;
     return;

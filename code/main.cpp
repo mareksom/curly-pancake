@@ -10,8 +10,9 @@ int main(int argc, char** argv) {
     command_line::PrintUsage(argc, argv);
   }
   state::PrintStateInfo();
-  status_bar::Initialize(state::test == 0 /* is_enabled */,
-                         state::number_of_tests);
+  if (state::test == 0) {
+    output_controller::Enable(state::number_of_tests);
+  }
   responder::Start();
   main_process::Run();
   responder::Stop();

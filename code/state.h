@@ -37,8 +37,6 @@ std::string JobStateToSymbol(const JobState& state);
 void SetState(int test_case, JobState state);
 JobState GetState(int test_case);
 
-void AppendError(const std::string& error_message);
-
 void ConsumeOutputs();
 
 void PrintStateInfo();

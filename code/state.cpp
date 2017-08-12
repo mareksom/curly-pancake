@@ -24,15 +24,11 @@ std::string JobStateToSymbol(const JobState& state) {
 
 void SetState(int test_case, JobState state) {
   job_states[test_case - 1] = state;
-  status_bar::UpdateSymbol(test_case - 1, JobStateToSymbol(state));
+  responder::UpdateState(test_case - 1, state);
 }
 
 JobState GetState(int test_case) {
   return job_states[test_case - 1];
-}
-
-void AppendError(const std::string& error_message) {
-  status_bar::PrintMessage(error_message);
 }
 
 void ConsumeOutputs() {
