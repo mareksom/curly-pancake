@@ -1,4 +1,5 @@
 wzo.cpp
 *.e
 .*.swp
+.suffix.cpp
 code.cpp
