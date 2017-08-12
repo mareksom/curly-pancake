@@ -9,4 +9,7 @@ void UpdateSymbol(int i, const std::string& symbol);
 // Prints a message above the status.
 void PrintMessage(const std::string& message);
 
+// Sets the message about the overall progress.
+void SetProgress(const std::string& progress);
+
 }  // namespace status_bar

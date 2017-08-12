@@ -141,4 +141,41 @@ void Dup2(int old_fd, int new_fd) {
   }
 }
 
+void InterProcessSemaphore::Init(int value) {
+  constexpr int kPageSize = 4096;
+  if (value < 0) {
+    Error("The semaphore cannot be negative.");
+  }
+  if (value >= kPageSize) {
+    Error("The semaphore cannot be bigger than the page size (", kPageSize,
+          ").");
+  }
+  pipe_ = Pipe::Create();
+  for (int i = 0; i < value; i++) {
+    V();
+  }
+}
+
+void InterProcessSemaphore::V() {
+  char value = 0;
+  pipe_.SendValue(value);
+}
+
+void InterProcessSemaphore::P() {
+  char value;
+  pipe_.ReceiveValue(value);
+}
+
+void InterProcessMutex::Init() {
+  InterProcessSemaphore::Init(1);
+}
+
+void InterProcessMutex::Lock() {
+  P();
+}
+
+void InterProcessMutex::Unlock() {
+  V();
+}
+
 }  // namespace systm

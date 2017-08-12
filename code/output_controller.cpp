@@ -3,6 +3,24 @@ namespace internal {
 
 int test_cases;
 bool enable = false;
+std::map<int, double> progress;
+
+void UpdateProgress() {
+  int cnt = 0;
+  double progress_sum = 0;
+  for (const auto& it : progress) {
+    cnt++;
+    progress_sum += it.second;
+  }
+  double overall_progress;
+  if (cnt == 0) {
+    overall_progress = 1;
+  } else {
+    overall_progress = progress_sum / cnt;
+  }
+  const int percent = std::round(overall_progress * 100);
+  status_bar::SetProgress(utils::StrCat(percent, "%"));
+}
 
 std::string JobStateToSymbol(const state::JobState& job_state) {
   switch (job_state) {
@@ -32,10 +50,28 @@ void Enable(int test_cases) {
 }
 
 void UpdateProgress(int test_case, double progress) {
+  internal::progress[test_case] = progress;
+  internal::UpdateProgress();
 }
 
 void UpdateState(int test_case, state::JobState job_state) {
-  status_bar::UpdateSymbol(test_case, internal::JobStateToSymbol(job_state));
+  bool progress_changed = false;
+  if (job_state == state::JobState::kRunning) {
+    auto it = internal::progress.find(test_case);
+    if (it == internal::progress.end()) {
+      internal::progress[test_case] = 0;
+      progress_changed = true;
+    }
+  } else if (job_state == state::JobState::kFinishedOk or
+             job_state == state::JobState::kFinishedError) {
+    internal::progress.erase(test_case);
+    progress_changed = true;
+  }
+  status_bar::UpdateSymbol(test_case - 1,
+                           internal::JobStateToSymbol(job_state));
+  if (progress_changed) {
+    internal::UpdateProgress();
+  }
 }
 
 void AddMessage(const std::string& message) {

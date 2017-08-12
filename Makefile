@@ -39,6 +39,7 @@ SUFFIX_SOURCES =           \
 		systm.cpp              \
 		utils.cpp              \
 		responder.cpp          \
+		solution.cpp           \
 		main.cpp               \
 
 FULL_SUFFIX_SOURCES = $(addprefix code/, $(SUFFIX_SOURCES))

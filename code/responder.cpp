@@ -1,7 +1,7 @@
 namespace responder {
 namespace internal {
 
-std::mutex mutex;
+systm::InterProcessMutex mutex;
 
 pid_t pid;
 systm::Pipe pipe;
@@ -24,10 +24,11 @@ std::function<void(Args...)> GenerateCallerFunction(
   return [id](Args ...args) -> void {
     std::string data = serializer::Serialize(args...);
     std::size_t size = data.size();
-    std::lock_guard<std::mutex> lock(mutex);
+    mutex.Lock();
     pipe.SendValue(id);
     pipe.SendValue(size);
     pipe.SendString(data);
+    mutex.Unlock();
   };
 }
 
@@ -107,6 +108,7 @@ void Start() {
     internal::pipe.CloseRead();
     std::exit(EXIT_SUCCESS);
   }
+  internal::mutex.Init();
   internal::pipe.CloseRead();
 }
 

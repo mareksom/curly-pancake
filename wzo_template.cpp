@@ -1,4 +1,8 @@
 // int test_case;  // Contains the current test case number.
+//
+// Informs the master about the progress on this test.  Expects a number in
+// range [0, 1], but other values will not crash the program.
+// void UpdateProgress(double progress);
 
 void Solve() {
   // Solves the problem.

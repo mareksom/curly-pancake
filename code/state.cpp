@@ -24,7 +24,7 @@ std::string JobStateToSymbol(const JobState& state) {
 
 void SetState(int test_case, JobState state) {
   job_states[test_case - 1] = state;
-  responder::UpdateState(test_case - 1, state);
+  responder::UpdateState(test_case, state);
 }
 
 JobState GetState(int test_case) {

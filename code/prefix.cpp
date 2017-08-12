@@ -36,3 +36,4 @@ sim dor(const c&) { ris; }
 
 int test_case;
 
+void UpdateProgress(double progress);

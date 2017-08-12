@@ -50,4 +50,30 @@ std::string WaitPid(pid_t pid);
 
 void Dup2(int old_fd, int new_fd);
 
+class InterProcessSemaphore {
+ public:
+  InterProcessSemaphore() = default;
+
+  InterProcessSemaphore(const InterProcessSemaphore&) = delete;
+  InterProcessSemaphore(InterProcessSemaphore&&) = delete;
+  InterProcessSemaphore& operator=(const InterProcessSemaphore&) = delete;
+  InterProcessSemaphore& operator=(InterProcessSemaphore&&) = delete;
+
+  void Init(int value);
+
+  void V();
+  void P();
+
+ private:
+  Pipe pipe_;
+};
+
+class InterProcessMutex : protected InterProcessSemaphore {
+ public:
+  void Init();
+
+  void Lock();
+  void Unlock();
+};
+
 }  // namespace systm

@@ -59,4 +59,13 @@ void PrintMessage(const std::string& message) {
   internal::PrintBar();
 }
 
+void SetProgress(const std::string& progress) {
+  if (!internal::is_enabled) {
+    return;
+  }
+  internal::Goto(-1, internal::symbols.size() + 3);
+  std::cerr << term_codes::ClearUntilEol << " " << progress;
+  internal::Goto(0, 1);
+}
+
 }  // namespace status_bar
