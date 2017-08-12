@@ -80,7 +80,13 @@ DEFINE_CALLBACK(AddMessage, std::string message) {
 
 void Loop() {
   int id;
-  while (pipe.ReceiveValue(id)) {
+  bool timeout;
+  const int64_t timeout_size_milliseconds = 83;
+  while (pipe.ReceiveValueOrTimeout(id, timeout, timeout_size_milliseconds)) {
+    if (timeout) {
+      output_controller::Update();
+      continue;
+    }
     std::size_t size;
     std::string input;
     if (!pipe.ReceiveValue(size)) {

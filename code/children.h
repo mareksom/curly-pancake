@@ -17,6 +17,6 @@ ChildData RemoveChild(pid_t pid);
 
 void ClearChildren();
 
-void KillAllChildrenAndExit();
+void KillAllChildren();
 
 }  // namespace children

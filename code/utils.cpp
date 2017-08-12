@@ -24,6 +24,7 @@ void Error(Args&& ...args) {
   utils::internal::StrCat_(std::cerr, term_codes::Red,
                            std::forward<Args>(args)..., term_codes::Reset);
   std::cerr << std::endl;
-  children::KillAllChildrenAndExit();
+  children::KillAllChildren();
   responder::Kill();
+  _exit(EXIT_FAILURE);
 }

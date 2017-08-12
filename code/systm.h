@@ -23,6 +23,12 @@ class Pipe {
 
   void SendString(const char* str, std::size_t size);
   bool ReceiveString(char* str, std::size_t size);
+  // It may be possible that this call will last a lot more than the duration.
+  // The timeout applies only to the first call to the read function.
+  // If reading the string requires multiple calls, the read can block
+  // indefinitely on any call except for the first one.
+  bool ReceiveStringOrTimeout(char* str, std::size_t, bool& timeout,
+                              int64_t timeout_milliseconds);
 
   void SendString(const std::string& str);
   bool ReceiveString(std::string& str, std::size_t size);
@@ -32,6 +38,9 @@ class Pipe {
 
   template <typename T>
   bool ReceiveValue(T& t);
+
+  template <typename T>
+  bool ReceiveValueOrTimeout(T& t, bool& timeout, int64_t timeout_milliseconds);
 
   // The buffer for the reading is shared between all threads inside a process,
   // so this function cannot be used concurrently.

@@ -1,7 +1,8 @@
 namespace signals {
 
 void InterruptSignalHandler(int sig) {
-  children::KillAllChildrenAndExit();
+  children::KillAllChildren();
+  _exit(EXIT_FAILURE);
 }
 
 SignalsLocker::SignalsLocker() : is_unlocked_(false) {

@@ -63,6 +63,27 @@ bool Pipe::ReceiveString(char* str, std::size_t size) {
   return true;
 }
 
+bool Pipe::ReceiveStringOrTimeout(
+    char* str, std::size_t size, bool& timeout, int64_t timeout_milliseconds) {
+  fd_set set;
+  struct timeval timeval;
+  FD_ZERO(&set);
+  FD_SET(ReadFd(), &set);
+  const int64_t microseconds = timeout_milliseconds * 1000;
+  timeval.tv_sec = microseconds / (1000 * 1000);
+  timeval.tv_usec = microseconds % (1000 * 1000);
+  const int result = select(ReadFd() + 1, &set, nullptr, nullptr, &timeval);
+  if (result == -1) {
+    Perror("select failed");
+  } else if (result == 0) {
+    timeout = true;
+    return true;
+  } else {
+    timeout = false;
+    return ReceiveString(str, size);
+  }
+}
+
 void Pipe::SendString(const std::string& str) {
   SendString(str.data(), str.size());
 }
@@ -85,6 +106,13 @@ void Pipe::SendValue(const T& t) {
 template <typename T>
 bool Pipe::ReceiveValue(T& t) {
   return ReceiveString(reinterpret_cast<char*>(&t), sizeof(T));
+}
+
+template <typename T>
+bool Pipe::ReceiveValueOrTimeout(T& t, bool& timeout,
+                                 int64_t timeout_milliseconds) {
+  return ReceiveStringOrTimeout(reinterpret_cast<char*>(&t), sizeof(T), timeout,
+                                timeout_milliseconds);
 }
 
 bool Pipe::ReadPortion(std::ostream& stream) {

@@ -24,7 +24,7 @@ void ClearChildren() {
   children.clear();
 }
 
-void KillAllChildrenAndExit() {
+void KillAllChildren() {
   for (const auto& child : children) {
     // Checking for errors doesn't make much sense.
     kill(child.first, SIGKILL);
@@ -32,7 +32,6 @@ void KillAllChildrenAndExit() {
   for (const auto& child : children) {
     waitpid(child.first, NULL, 0);
   }
-  _exit(EXIT_FAILURE);
 }
 
 }  // namespace children
