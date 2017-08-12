@@ -1,0 +1,126 @@
+namespace systm {
+
+constexpr int kBufferSize = 4096;
+char buffer[kBufferSize];
+
+Pipe::Pipe() : pipe_{-1, -1} {}
+
+Pipe::Pipe(Pipe&& pipe) : pipe_{pipe.pipe_[0], pipe.pipe_[1]} {
+  pipe.pipe_[0] = pipe.pipe_[1] = -1;
+}
+
+Pipe& Pipe::operator=(Pipe&& pipe) {
+  Close();
+  pipe_[0] = pipe.pipe_[0];
+  pipe_[1] = pipe.pipe_[1];
+  pipe.pipe_[0] = pipe.pipe_[1] = -1;
+  return *this;
+}
+
+Pipe::~Pipe() {
+  Close();
+}
+
+void Pipe::Close()      { CloseRead(); CloseWrite(); }
+void Pipe::CloseRead()  { ClosePipe(0); }
+void Pipe::CloseWrite() { ClosePipe(1); }
+
+int Pipe::ReadFd()  { return pipe_[0]; }
+int Pipe::WriteFd() { return pipe_[1]; }
+
+Pipe Pipe::Create() {
+  Pipe p;
+  if (pipe(p.pipe_) == -1) {
+    Perror("pipe failed");
+  }
+  return std::move(p);
+}
+
+template <typename T>
+void Pipe::SendValue(const T& t) {
+  const char* data = reinterpret_cast<const char*>(&t);
+  int size = sizeof(T);
+  while (size > 0) {
+    const int result = write(WriteFd(), data, size);
+    if (result < 0) {
+      Perror("write failed");
+    } else if (result == 0) {
+      Error("write returned 0.");
+    }
+    size -= result;
+    data += result;
+  }
+}
+
+template <typename T>
+bool Pipe::ReceiveValue(T& t) {
+  char* data = reinterpret_cast<char*>(&t);
+  int size = sizeof(T);
+  while (size > 0) {
+    const int result = read(ReadFd(), data, size);
+    if (result < 0) {
+      Perror("read failed");
+    } else if (result == 0) {
+      return false;
+    }
+    data += result;
+    size -= result;
+  }
+  return true;
+}
+
+bool Pipe::ReadPortion(std::ostream& stream) {
+  const int result = read(ReadFd(), buffer, kBufferSize);
+  if (result < 0) {
+    Perror("read failed");
+  } else if (result == 0) {
+    return false;
+  }
+  stream.write(buffer, result);
+  return true;
+}
+
+void Pipe::ClosePipe(int i) {
+  if (pipe_[i] != -1) {
+    if (close(pipe_[i]) == -1) {
+      Perror("close failed");
+    }
+    pipe_[i] = -1;
+  }
+}
+
+pid_t Fork() {
+  pid_t pid = fork();
+  if (pid == -1) {
+    Perror("fork failed");
+  }
+  return pid;
+}
+
+std::string WaitPid(pid_t pid) {
+  int status;
+  if (waitpid(pid, &status, 0) == -1) {
+    Perror("waitpid(", pid, ") failed");
+  }
+  if (WIFEXITED(status)) {
+    if (const int exit_code = WEXITSTATUS(status)) {
+      return utils::StrCat("Terminated with exit code ", exit_code, ".");
+    } else {
+      return {};
+    }
+  } else if (WIFSIGNALED(status)) {
+    const int sig = WTERMSIG(status);
+    return utils::StrCat(
+        "Terminated by signal ", sig, " (", strsignal(sig), ").");
+  } else {
+    return utils::StrCat("Died of an unknown cause.");
+  }
+}
+
+void Dup2(int old_fd, int new_fd) {
+  if (dup2(old_fd, new_fd) == -1) {
+    Perror("dup2 failed");
+  }
+}
+
+}  // namespace systm

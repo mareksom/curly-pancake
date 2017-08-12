@@ -1,0 +1,16 @@
+int main(int argc, char** argv) {
+  signals::SetupSignals();
+  try {
+    command_line::Arguments args = command_line::Parse(argc, argv);
+    state::Initialize(args.threads, args.max_threads, args.test,
+                      args.input_file);
+  } catch (const std::string& error_message) {
+    std::cerr << colors::Red << error_message << colors::Reset << std::endl;
+    command_line::PrintUsage(argc, argv);
+  }
+  state::PrintStateInfo();
+  status_bar::Initialize(state::test == 0 /* is_enabled */,
+                         state::number_of_tests);
+  main_process::Run();
+  return EXIT_SUCCESS;
+}
