@@ -21,6 +21,13 @@ void PrintBar() {
   std::cerr << "] " << last_spinner << " " << last_progress << std::endl;
 }
 
+void PrintOneLineMessage(const std::string& message) {
+  assert(is_enabled);
+  Goto(-1, 1);
+  std::cerr << term_codes::ClearUntilEol << message << std::endl;
+  PrintBar();
+}
+
 }  // namespace internal
 
 void Initialize(int size, int spinner_size) {
@@ -55,13 +62,21 @@ void PrintMessage(const std::string& message) {
     std::cerr << message << std::endl;
     return;
   }
-  internal::Goto(-1, 1);
-  for (int i = 0; i < static_cast<int>(internal::symbols.size()) + 2; i++) {
-    std::cerr << " ";
+  std::string last;
+  for (char c : message) {
+    if (c == '\n' or last.size() == internal::width) {
+      if (!last.empty()) {
+        internal::PrintOneLineMessage(last);
+      }
+      last.clear();
+    }
+    if (c != '\n') {
+      last.push_back(c);
+    }
   }
-  internal::Goto(-1, 1);
-  std::cerr << message << std::endl;
-  internal::PrintBar();
+  if (!last.empty()) {
+    internal::PrintOneLineMessage(last);
+  }
 }
 
 void SetProgress(const std::string& progress) {

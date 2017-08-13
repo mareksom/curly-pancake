@@ -37,3 +37,6 @@ sim dor(const c&) { ris; }
 int test_case;
 
 void UpdateProgress(double progress);
+
+template <typename ...Args>
+void PrintMessage(Args&& ...args);

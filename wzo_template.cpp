@@ -2,7 +2,13 @@
 //
 // Informs the master about the progress on this test.  Expects a number in
 // range [0, 1], but other values will not crash the program.
+// This function is slow, don't call it too often.
 // void UpdateProgress(double progress);
+//
+// Shows up a message above the status bar (or on stderr if there is no status
+// bar).  This function is slow, don't call it too often.
+// template <typename ...Args>
+// void PrintMessage(Args&& ...args);
 
 void Solve() {
   // Solves the problem.

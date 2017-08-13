@@ -46,7 +46,8 @@ void WaitForChild(pid_t pid) {
     state::SetState(data.test_case, state::JobState::kFinishedOk);
   } else {
     state::SetState(data.test_case, state::JobState::kFinishedError);
-    responder::AddMessage(error_message);
+    responder::AddMessage(
+        utils::StrCat(term_codes::Red, error_message, term_codes::Reset));
   }
   state::ConsumeOutputs();
 }
