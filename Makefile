@@ -1,7 +1,12 @@
-#CXX = g++
-CXX = clang++-4.0
-FLAGS = -std=c++11 -g -DLOCAL
-#FLAGS = -std=c++11 -O2
+CXX = g++
+FLAGS = -std=c++11 -g
+
+fast ?= 0
+ifeq ($(fast), 1)
+	FLAGS += -O2
+else
+	FLAGS += -DLOCAL -fsanitize=undefined -fsanitize=address -D_GLIBCXX_DEBUG
+endif
 
 WZO = wzo.cpp
 BIN = wzo.e
