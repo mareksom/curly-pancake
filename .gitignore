@@ -4,3 +4,5 @@ wzo.cpp
 .prefix.cpp
 .suffix.cpp
 code.cpp
+t.in
+t.out

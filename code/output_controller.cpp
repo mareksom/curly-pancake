@@ -101,6 +101,9 @@ void Enable(int test_cases) {
   internal::test_cases = test_cases;
   internal::enable = true;
   status_bar::Initialize(test_cases, internal::kAnimationSize);
+  for (int i = 1; i <= test_cases; i++) {
+    internal::progress[i] = 0;
+  }
   internal::beginning_of_time = std::chrono::system_clock::now();
 }
 
@@ -138,9 +141,11 @@ void UpdateState(int test_case, state::JobState job_state) {
       internal::progress[test_case] = 0;
       progress_changed = true;
     }
-  } else if (job_state == state::JobState::kFinishedOk or
-             job_state == state::JobState::kFinishedError) {
+  } else if (job_state == state::JobState::kFinishedError) {
     internal::progress.erase(test_case);
+    progress_changed = true;
+  } else if (job_state == state::JobState::kFinishedOk) {
+    internal::progress[test_case] = 1;
     progress_changed = true;
   }
   status_bar::UpdateSymbol(test_case - 1,

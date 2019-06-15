@@ -1,5 +1,5 @@
 CXX = g++
-FLAGS = -std=c++11 -g
+FLAGS = -std=c++17 -g
 
 fast ?= 0
 ifeq ($(fast), 1)
