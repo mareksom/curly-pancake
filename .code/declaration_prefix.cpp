@@ -61,7 +61,7 @@ std::string StrCat(Args&& ...args) {
 
 }  // namespace
 
-int test_case;
+extern int test_case;
 
 void UpdateProgress(double progress);
 void PrintMessageStr(const std::string& message);

@@ -67,7 +67,7 @@ $(BIN)/all/fast/%.o: $(BIN)/all/%.cpp | $(BIN)/all/fast
 	@echo "Compiling with flags: $(FLAGS) $(FLAGS_DEBUG)"
 	@$(CXX) $(FLAGS) $(FLAGS_FAST) -c $^ -o $@
 
-.%.cpp: $(BIN)/all/%.cpp
+.%.cpp: $(BIN)/all/full/%.cpp
 	@cp $< $@
 
 $(BIN)/all/%.cpp: %.cpp $(CODE_DIR)/prefix.cpp $(CODE_DIR)/wzo_suffix.cpp | $(BIN)/all
@@ -75,6 +75,12 @@ $(BIN)/all/%.cpp: %.cpp $(CODE_DIR)/prefix.cpp $(CODE_DIR)/wzo_suffix.cpp | $(BI
 	@echo "#line 1 \"$<\"" >> $@
 	@cat $< >> $@
 	@cat $(CODE_DIR)/wzo_suffix.cpp >> $@
+
+$(BIN)/all/full/%.cpp: %.cpp $(CODE_DIR)/prefix.cpp $(BIN)/suffix.cpp | $(BIN)/all/full
+	@cp $(CODE_DIR)/prefix.cpp $@
+	@echo "#line 1 \"$<\"" >> $@
+	@cat $< >> $@
+	@cat $(BIN)/suffix.cpp >> $@
 
 $(BIN)/lib_debug.o: $(BIN)/lib.cpp | $(BIN)
 	@echo "\033[35mCompiling debug library: $(FLAGS) $(FLAGS_DEBUG)\033[0m"
@@ -94,6 +100,9 @@ $(BIN)/suffix.cpp: $(FULL_SUFFIX_SOURCES) | $(BIN)
 		cat $$file >> $@; \
 	done
 
+$(BIN)/all/full: | $(BIN)/all
+	@mkdir -p $(BIN)/all/full
+
 $(BIN)/all/debug: | $(BIN)/all
 	@mkdir -p $(BIN)/all/debug
 
@@ -110,4 +119,4 @@ $(BIN):
 clean:
 	rm -rf .*.cpp *.e $(BIN)
 
-.PRECIOUS: $(BIN)/all/%.cpp $(BIN)/all/debug/%.o $(BIN)/all/fast/%.o
+.PRECIOUS: $(BIN)/all/%.cpp $(BIN)/all/full/%.cpp $(BIN)/all/debug/%.o $(BIN)/all/fast/%.o
