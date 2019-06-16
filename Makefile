@@ -45,8 +45,8 @@ SUFFIX_SOURCES =           \
 FULL_SUFFIX_SOURCES = $(addprefix $(CODE_DIR)/, $(SUFFIX_SOURCES))
 
 .cpp:
-	@make --no-print-directory $(BIN)/all/debug/$@.e
 	@make --no-print-directory .$@.cpp
+	@make --no-print-directory $(BIN)/all/debug/$@.e
 	@cp $(BIN)/all/debug/$@.e $@.e
 
 precompute: $(BIN)/lib_debug.o $(BIN)/lib_fast.o
