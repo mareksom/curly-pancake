@@ -20,7 +20,7 @@ std::vector<children::ChildData*> RunSomeChildrenAndGatherRunningChildren() {
   }
   assert(!running_children.empty() or !waiting_children.empty());
   bool is_sorted = false;
-  while (running_children.size() < state::threads and
+  while ((int) running_children.size() < state::threads and
          !waiting_children.empty()) {
     if (!is_sorted) {
       std::sort(waiting_children.begin(), waiting_children.end(),

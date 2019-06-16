@@ -1,4 +1,4 @@
-#line 2 "prefix.cpp"
+#line 2 "declaration_prefix.cpp"
 
 #include <bits/stdc++.h>
 
@@ -36,28 +36,8 @@ sim dor(const c&) { ris; }
 };
 #define imie(x...) " [" #x ": " << (x) << "] "
 
-using ld = long double;
-using ll = long long;
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
-constexpr int mod = 1000 * 1000 * 1000 + 7;
-constexpr int odw2 = (mod + 1) / 2;
-
-void OdejmijOd(int& a, int b) { a -= b; if (a < 0) a += mod; }
-int Odejmij(int a, int b) { OdejmijOd(a, b); return a; }
-void DodajDo(int& a, int b) { a += b; if (a >= mod) a -= mod; }
-int Dodaj(int a, int b) { DodajDo(a, b); return a; }
-int Mnoz(int a, int b) { return (ll) a * b % mod; }
-void MnozDo(int& a, int b) { a = Mnoz(a, b); }
-int Pot(int a, int b) { int res = 1; while (b) { if (b % 2 == 1) MnozDo(res, a); a = Mnoz(a, a); b /= 2; } return res; }
-int Odw(int a) { return Pot(a, mod - 2); }
-void PodzielDo(int& a, int b) { MnozDo(a, Odw(b)); }
-int Podziel(int a, int b) { return Mnoz(a, Odw(b)); }
-int Moduluj(ll x) { x %= mod; if (x < 0) x += mod; return x; }
-
-template <typename T> T Maxi(T& a, T b) { return a = max(a, b); }
-template <typename T> T Mini(T& a, T b) { return a = min(a, b); }
 
 namespace internal {
 
@@ -81,7 +61,7 @@ std::string StrCat(Args&& ...args) {
 
 }  // namespace
 
-extern int test_case;
+int test_case;
 
 void UpdateProgress(double progress);
 void PrintMessageStr(const std::string& message);

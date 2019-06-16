@@ -9,9 +9,8 @@ void UpdateProgress(double progress) {
   responder::UpdateProgress(test_case, progress);
 }
 
-template <typename ...Args>
-void PrintMessage(Args&& ...args) {
-  responder::AddMessage(utils::StrCat(std::forward<Args>(args)...));
+void PrintMessageStr(const std::string& message) {
+  responder::AddMessage(message);
 }
 
 }  // namespace solution

@@ -1,16 +1,11 @@
 CXX = g++
-FLAGS = -std=c++17 -g
-
-fast ?= 0
-ifeq ($(fast), 1)
-	FLAGS += -O2
-else
-	FLAGS += -DLOCAL -fsanitize=undefined -fsanitize=address -D_GLIBCXX_DEBUG
-endif
+FLAGS = -std=c++17 -g -Wall -Wshadow
+FLAGS_DEBUG = -DLOCAL -fsanitize=undefined -fsanitize=address -D_GLIBCXX_DEBUG
+FLAGS_FAST = -O3
 
 WZO = wzo.cpp
-BIN = wzo.e
-FULL_CODE = code.cpp
+CODE_DIR = code
+BIN = .bin
 
 SUFFIX_SOURCES =           \
 		includes.h             \
@@ -47,26 +42,72 @@ SUFFIX_SOURCES =           \
 		solution.cpp           \
 		main.cpp               \
 
-FULL_SUFFIX_SOURCES = $(addprefix code/, $(SUFFIX_SOURCES))
+FULL_SUFFIX_SOURCES = $(addprefix $(CODE_DIR)/, $(SUFFIX_SOURCES))
 
-$(BIN): $(FULL_CODE)
-	$(CXX) $^ -o $@ $(FLAGS)
+.cpp:
+	@make --no-print-directory $(BIN)/all/debug/$@.e
+	@make --no-print-directory .$@.cpp
+	@cp $(BIN)/all/debug/$@.e $@.e
 
-$(FULL_CODE): .prefix.cpp $(WZO) .suffix.cpp
-	cp .prefix.cpp $@
-	echo "#line 1 \"$(WZO)\"" >> $@
-	cat $(WZO) .suffix.cpp >> $@
+precompute: $(BIN)/lib_debug.o $(BIN)/lib_fast.o
 
-.prefix.cpp: code/prefix.cpp
-	cp $< $@
+$(BIN)/all/debug/%.e: $(BIN)/all/debug/%.o $(BIN)/lib_debug.o | $(BIN)/all/debug
+	@echo "Linking"
+	@$(CXX) $(FLAGS) $(FLAGS_DEBUG) $^ -o $@
 
-.suffix.cpp: $(FULL_SUFFIX_SOURCES)
-	rm -f $@
-	for file in $^; do \
+$(BIN)/all/fast/%.e: $(BIN)/all/fast/%.o $(BIN)/lib_fast.o | $(BIN)/all/fast
+	@echo "Linking"
+	@$(CXX) $(FLAGS) $(FLAGS_FAST) $^ -o $@
+
+$(BIN)/all/debug/%.o: $(BIN)/all/%.cpp | $(BIN)/all/debug
+	@echo "Compiling with flags: $(FLAGS) $(FLAGS_DEBUG)"
+	@$(CXX) $(FLAGS) $(FLAGS_DEBUG) -c $^ -o $@
+
+$(BIN)/all/fast/%.o: $(BIN)/all/%.cpp | $(BIN)/all/fast
+	@echo "Compiling with flags: $(FLAGS) $(FLAGS_DEBUG)"
+	@$(CXX) $(FLAGS) $(FLAGS_FAST) -c $^ -o $@
+
+.%.cpp: $(BIN)/all/%.cpp
+	@cp $< $@
+
+$(BIN)/all/%.cpp: %.cpp $(CODE_DIR)/prefix.cpp $(CODE_DIR)/wzo_suffix.cpp | $(BIN)/all
+	@cp $(CODE_DIR)/prefix.cpp $@
+	@echo "#line 1 \"$<\"" >> $@
+	@cat $< >> $@
+	@cat $(CODE_DIR)/wzo_suffix.cpp >> $@
+
+$(BIN)/lib_debug.o: $(BIN)/lib.cpp | $(BIN)
+	@echo "\033[35mCompiling debug library: $(FLAGS) $(FLAGS_DEBUG)\033[0m"
+	@$(CXX) $(FLAGS) $(FLAGS_DEBUG) -c $^ -o $@
+
+$(BIN)/lib_fast.o: $(BIN)/lib.cpp | $(BIN)
+	@echo "\033[35mCompiling fast library: $(FLAGS) $(FLAGS_FAST)\033[0m"
+	@$(CXX) $(FLAGS) $(FLAGS_FAST) -c $^ -o $@
+
+$(BIN)/lib.cpp: $(CODE_DIR)/declaration_prefix.cpp $(CODE_DIR)/wzo_as_declarations.cpp $(BIN)/suffix.cpp | $(BIN)
+	@cat $^ > $@
+
+$(BIN)/suffix.cpp: $(FULL_SUFFIX_SOURCES) | $(BIN)
+	@rm -f $@
+	@for file in $^; do \
 		echo "#line 1 \"$$file\"" >> $@; \
 		cat $$file >> $@; \
 	done
 
+$(BIN)/all/debug: | $(BIN)/all
+	@mkdir -p $(BIN)/all/debug
+
+$(BIN)/all/fast: | $(BIN)/all
+	@mkdir -p $(BIN)/all/fast
+
+$(BIN)/all: | $(BIN)
+	@mkdir -p $(BIN)/all
+
+$(BIN):
+	@mkdir -p $(BIN)
+
 .PHONY: clean
 clean:
-	rm -f $(BIN) $(FULL_CODE)
+	rm -rf .*.cpp *.e $(BIN)
+
+.PRECIOUS: $(BIN)/all/%.cpp $(BIN)/all/debug/%.o $(BIN)/all/fast/%.o

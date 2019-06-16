@@ -87,7 +87,7 @@ void PrintMessage(const std::string& message) {
   }
   std::string last;
   for (char c : message) {
-    if (c == '\n' or last.size() == internal::width) {
+    if (c == '\n' or (int) last.size() == internal::width) {
       if (!last.empty()) {
         internal::PrintOneLineMessage(last);
       }
