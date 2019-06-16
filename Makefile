@@ -4,7 +4,7 @@ FLAGS_DEBUG = -DLOCAL -fsanitize=undefined -fsanitize=address -D_GLIBCXX_DEBUG
 FLAGS_FAST = -O3
 
 WZO = wzo.cpp
-CODE_DIR = code
+CODE_DIR = .code
 BIN = .bin
 
 SUFFIX_SOURCES =           \
